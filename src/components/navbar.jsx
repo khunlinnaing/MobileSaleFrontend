@@ -1,8 +1,12 @@
 import { NavLink } from 'react-router-dom'
 import 'bootstrap/dist/js/bootstrap.bundle.min.js';
+import Context from './context';
+import { useContext } from 'react';
+import { ShoppingCart } from 'phosphor-react'
 function NavBar() {
     const user = localStorage.getItem('userid')
     const email = localStorage.getItem('email')
+    const {noti} = useContext(Context)
     return (
         <nav className="navbar navbar-expand-lg navbar-light bg-light sticky-top">
             <div className="container-fluid">
@@ -56,6 +60,13 @@ function NavBar() {
                                 <NavLink to="/list" className={({ isActive }) => (isActive ? "active nav-link" : "nav-link")}>User List</NavLink>
                             </li> : ``
                         }
+                        <li className="nav-item">
+                            <NavLink to="/buy_product" className={({ isActive }) => (isActive ? "active nav-link" : "nav-link")}><ShoppingCart size={32}/> 
+                            {
+                                noti ? <sup className='bg-danger text-white'>{noti}</sup> : ``
+                            }
+                            </NavLink>
+                        </li>                        
                     </ul>
                 </div>
             </div>

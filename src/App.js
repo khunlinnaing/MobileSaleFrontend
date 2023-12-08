@@ -1,5 +1,5 @@
 import { useEffect } from 'react';
-import { BrowserRouter, Routes, Route} from 'react-router-dom'
+import { BrowserRouter, Routes, Route } from 'react-router-dom'
 import 'bootstrap/dist/css/bootstrap.css';
 import NavBar from './components/navbar';
 import Home from './pages/Home';
@@ -22,9 +22,27 @@ import UpdateProduct from './pages/UpdateProduct'
 import ProductCategory from './pages/ProductByCategory'
 import UserLists from './pages/UserList';
 import UserInfo from './pages/UserDetail';
-
+import BuyProducts from './pages/Buy_Products'
 function App() {
+
+  const [page, setPage] = useState(1)
+  const [total, setTotal] = useState(0)
+  const displayPages = [];
+  const [noti, setnoti] = useState(0)
+  const [success, setSuccess] = useState(null)
+  const [buy, setBuy] = useState({})
+  async function getProductDatas() {
+    const response = await fetch('http://localhost:5000/api/products/home');
+    const values = await response.json();
+    if (values.status === 1) {
+      for (let i = 0; i < (values.data).length; i++) {
+        buy[(values.data)[i]._id] = 0
+      }
+    }
+  }
+
   useEffect(() => {
+    getProductDatas()
     const clearLocalStorageAfterOneMinute = () => {
       localStorage.clear();
       window.location.reload();
@@ -32,38 +50,35 @@ function App() {
     const oneMinute = 86400000 // for one day milliseconds
     setTimeout(clearLocalStorageAfterOneMinute, oneMinute);
   }, []);
-  const [page, setPage] = useState(1)
-  const [total, setTotal]= useState(0)
-  const displayPages = [];
-  const [success, setSuccess] = useState(null)
   return (
     <BrowserRouter>
-     <Context.Provider value={{ page, setPage, total, setTotal, displayPages, success, setSuccess}}>
-      <NavBar />
-      <Routes>
-        <Route path='/' element={<Home />} />
-        <Route path='about' element={<About />} />
-        <Route path='contact' element={<Contact />} />
-        <Route path='category'  >
-          <Route index element={!localStorage.getItem('token') ? <Login /> : <Category />} />
-          <Route path='create' element={!localStorage.getItem('token') ? <Login /> : <CrateCategory />} />
-          <Route path='update/:id' element={!localStorage.getItem('token') ? <Login /> : <UpdateCategory />} />
-          <Route path='products/:id' element={!localStorage.getItem('token') ? <Login /> :<ProductCategory />} />
-        </Route>
-        <Route path='products' >
-          <Route index element={!localStorage.getItem('token') ? <Login /> :<Product />}  />
-          <Route path='create' element={!localStorage.getItem('token') ? <Login /> :<CreateProduct />} />
-          <Route path='update/:id' element={!localStorage.getItem('token') ? <Login /> :<UpdateProduct />} />
-        </Route>
-        <Route path='signup' element={<SignUp />} />
-        <Route path='login' element={<Login />} />
-        <Route path='setting' element={ !localStorage.getItem('email') ? <Login /> : <Setting />} />
-        <Route path='list' >
-          <Route index element={ !localStorage.getItem('token') ? <Login /> : <UserLists />} />
-          <Route path='info/:id' element={!localStorage.getItem('token') ? <Login /> : <UserInfo />} />
-        </Route>
-        <Route path='*' element={<Error />} />
-      </Routes>
+      <Context.Provider value={{ page, setPage, total, setTotal, displayPages, success, setSuccess, noti, setnoti, buy, setBuy }}>
+        <NavBar />
+        <Routes>
+          <Route path='/' element={<Home />} />
+          <Route path='about' element={<About />} />
+          <Route path='contact' element={<Contact />} />
+          <Route path='category'  >
+            <Route index element={!localStorage.getItem('token') ? <Login /> : <Category />} />
+            <Route path='create' element={!localStorage.getItem('token') ? <Login /> : <CrateCategory />} />
+            <Route path='update/:id' element={!localStorage.getItem('token') ? <Login /> : <UpdateCategory />} />
+            <Route path='products/:id' element={!localStorage.getItem('token') ? <Login /> : <ProductCategory />} />
+          </Route>
+          <Route path='products' >
+            <Route index element={!localStorage.getItem('token') ? <Login /> : <Product />} />
+            <Route path='create' element={!localStorage.getItem('token') ? <Login /> : <CreateProduct />} />
+            <Route path='update/:id' element={!localStorage.getItem('token') ? <Login /> : <UpdateProduct />} />
+          </Route>
+          <Route path='signup' element={<SignUp />} />
+          <Route path='login' element={<Login />} />
+          <Route path='setting' element={!localStorage.getItem('email') ? <Login /> : <Setting />} />
+          <Route path='list' >
+            <Route index element={!localStorage.getItem('token') ? <Login /> : <UserLists />} />
+            <Route path='info/:id' element={!localStorage.getItem('token') ? <Login /> : <UserInfo />} />
+          </Route>
+          <Route path='/buy_product' element={<BuyProducts />} />
+          <Route path='*' element={<Error />} />
+        </Routes>
       </Context.Provider>
       <Footer />
     </BrowserRouter>

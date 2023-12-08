@@ -4,7 +4,7 @@ import PaginationExample from './Paggination'
 import Content from '../components/context';
 function Product() {
     const [datas, setDatas] = useState([])
-    const { page, setTotal } = useContext(Content);
+    const { page, setTotal, setnoti, buy, setBuy } = useContext(Content);
     const [categories, setCategories] = useState([])
     const navigate = useNavigate();
     async function getCategoryDatas() {
@@ -57,6 +57,17 @@ function Product() {
                 console.error(error);
             });
     }
+    function SetBuyProduct(e, val){
+        setnoti((preValue) => preValue + 1)
+        setBuy({...buy, [val._id]: buy[val._id]+1})
+        console.log(buy)
+    }
+    function SetCancelProduct(e, val){
+        setnoti((preValue) => preValue <= 0 ? 0 :preValue - 1)
+        setBuy({...buy, [val._id]: buy[val._id] <= 0 ? 0 : buy[val._id] - 1})
+        console.log(buy)
+    }
+    
     useEffect(() => {
         getProductDatas();
         getCategoryDatas();
@@ -69,7 +80,7 @@ function Product() {
                         <div className="container">
                             <h3 className="text-center my-4">Products Lists</h3>
                             {
-                                localStorage.getItem('role') != 1 ?
+                                localStorage.getItem('role') !== 1 ?
                                 <div className="row ml-4">
                                 <button className="btn btn-success w-25" onClick={createCategory}>+Add new categories</button>
                             </div>: ``}
@@ -95,7 +106,7 @@ function Product() {
                                                             </tr>
                                                             <tr>
                                                                 <td>Number Of <strong>{data.Name}</strong></td>
-                                                                <td>{data.Quantity}</td>
+                                                                <td>{data.Quantity - buy[data._id]}</td>
                                                             </tr>
                                                         </tbody>
                                                     </table>
@@ -103,19 +114,22 @@ function Product() {
                                                 </div>
                                                 <div className="card-footer">
                                                     {
-                                                        localStorage.getItem('role') != 1 ?
+                                                        localStorage.getItem('role') !== 1 ?
                                                             <div>
                                                                 <button className='btn btn-primary text-white' onClick={() => updateProduct(data._id)}>Detail</button>
                                                                 <button className='btn btn-success text-white' onClick={() => updateProduct(data._id)}>Update</button>
                                                                 <button className='btn btn-danger text-white' onClick={() => deleteProduct(data._id)} >Delete</button>
                                                             </div> : ``}
                                                     <div className="row my-3">
-                                                        <div className="col-lg-6 col-md-6">
-                                                            <button className='btn bg-success text-white form-control'>+</button>
+                                                        {data.Quantity - buy[data._id] !== 0 ? <div className="col-lg-6 col-md-6">
+                                                                <button className='btn bg-success text-white form-control' onClick={(e) =>SetBuyProduct(e, data)}>Buy {buy[data._id] !==0 ? `(${buy[data._id]})`: ``}</button>
+                                                            </div> :
+                                                            ``
+                                                        }
+                                                        { buy[data._id] !==0 ?<div className="col-lg-6 col-md-6">
+                                                            <button className='btn bg-danger text-white form-control' onClick={(e) => SetCancelProduct(e, data)}>Cancel</button>
                                                         </div>
-                                                        <div className="col-lg-6 col-md-6">
-                                                            <button className='btn bg-danger text-white form-control'>-</button>
-                                                        </div>
+                                                        :``}
                                                     </div>
                                                 </div>
                                             </div>
